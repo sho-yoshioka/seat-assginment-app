@@ -1,17 +1,24 @@
 # seat-assginment-app
 
-# 指示
-席替えアプリを作成する
-## 席決めアプリ要件
-会社や大人数での食事で席を決める際に、スムーズに席案内をする
-当日QRコードを読み取ることでランダムな数字がQRを読み取った端末に表示されること
-表示される数字は、その会では他の人と重複しないこと
-ページを更新しても番号が変わらないこと
-## 今後実装したい内容
-座席は当日までわからないため、4人席や6人席などの塊をUI上から操作し、並び替えられること
-座席表の設定は管理者のみが行え、当日の開始前に早くいって作成する
-番号が座席表と紐づきQRコードで表示された番号と紐づく
-初期配置を覚えておき、改めて席替えする機能を実装したい。
-## 技術スタック
-最終的にはAzureクラウドにデプロイする
-フロントやバックエンドは作りこむ必要はなく、まずはMVPを作成する
+This is a simple MVP implementation of a seat assignment web application. Scanning a QR code that points to this app will display a unique number for each participant. The number does not change when the page is reloaded and will not duplicate for other users until the available numbers are exhausted.
+
+## Requirements
+- Each user receives a random seat number that is unique within the event.
+- Reloading the page does not change the assigned number.
+
+## Running locally
+1. Install dependencies
+   ```bash
+   npm install
+   ```
+2. Start the server
+   ```bash
+   npm start
+   ```
+3. Access `http://localhost:3000` in your browser. A number will be displayed.
+
+## Future work
+- Manage seating layout (4-seat or 6-seat blocks) via UI.
+- Bind seat numbers to a seating chart with administrator configuration.
+- Support reshuffling while remembering previous assignments.
+- Deploy to Azure.
