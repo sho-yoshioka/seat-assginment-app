@@ -9,6 +9,7 @@
   <div>
     <h2>Create Event</h2>
     <input type="text" id="name" placeholder="Event name">
+    <input type="number" id="seats" placeholder="Seat count">
     <input type="password" id="pwd" placeholder="Password">
     <button onclick="createEvent()">Create</button>
     <button onclick="loadEvents(document.getElementById('pwd').value)">Load Events</button>
@@ -26,18 +27,24 @@ function loadEvents(password) {
       ul.innerHTML = '';
       data.events.forEach(e => {
         const li = document.createElement('li');
-        li.textContent = e.name;
+        li.innerHTML = `${e.name} (seats: ${e.maxSeats}) <br>`;
+        const img = document.createElement('img');
+        img.src = `/admin/events/${e.id}/qrcode?password=` + encodeURIComponent(password);
+        img.alt = 'QR code';
+        img.width = 100;
+        li.appendChild(img);
         ul.appendChild(li);
       });
     });
 }
 function createEvent() {
   const name = document.getElementById('name').value;
+  const seats = document.getElementById('seats').value;
   const pwd = document.getElementById('pwd').value;
   fetch('/admin/events', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({name, password: pwd})
+    body: JSON.stringify({name, maxSeats: seats, password: pwd})
   })
     .then(r => {
       if(!r.ok) throw new Error('error');
