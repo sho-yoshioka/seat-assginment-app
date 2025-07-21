@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin</title>
+</head>
+<body>
+  <h1>Event Admin</h1>
+  <div>
+    <h2>Create Event</h2>
+    <input type="text" id="name" placeholder="Event name">
+    <input type="password" id="pwd" placeholder="Password">
+    <button onclick="createEvent()">Create</button>
+    <button onclick="loadEvents(document.getElementById('pwd').value)">Load Events</button>
+  </div>
+  <div>
+    <h2>Events</h2>
+    <ul id="list"></ul>
+  </div>
+<script>
+function loadEvents(password) {
+  fetch('/admin/events?password=' + encodeURIComponent(password))
+    .then(r => r.json())
+    .then(data => {
+      const ul = document.getElementById('list');
+      ul.innerHTML = '';
+      data.events.forEach(e => {
+        const li = document.createElement('li');
+        li.textContent = e.name;
+        ul.appendChild(li);
+      });
+    });
+}
+function createEvent() {
+  const name = document.getElementById('name').value;
+  const pwd = document.getElementById('pwd').value;
+  fetch('/admin/events', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({name, password: pwd})
+  })
+    .then(r => {
+      if(!r.ok) throw new Error('error');
+      return r.json();
+    })
+    .then(() => {
+      loadEvents(pwd);
+    })
+    .catch(() => alert('Failed'));
+}
+</script>
+</body>
+</html>
