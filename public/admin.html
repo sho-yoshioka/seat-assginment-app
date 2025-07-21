@@ -3,6 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <title>Admin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      line-height: 1.6;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px 0;
+    }
+    #list li {
+      list-style: none;
+      margin-top: 15px;
+    }
+    img {
+      display: block;
+      margin-top: 5px;
+    }
+    #message {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
   <h1>Event Admin</h1>
@@ -13,6 +37,7 @@
     <input type="password" id="pwd" placeholder="Password">
     <button onclick="createEvent()">Create</button>
     <button onclick="loadEvents(document.getElementById('pwd').value)">Load Events</button>
+    <div id="message"></div>
   </div>
   <div>
     <h2>Events</h2>
@@ -20,14 +45,14 @@
   </div>
 <script>
 function loadEvents(password) {
-  fetch('/admin/events?password=' + encodeURIComponent(password))
+  fetch('/admin/events', { headers: { 'x-admin-password': password } })
     .then(r => r.json())
     .then(data => {
       const ul = document.getElementById('list');
       ul.innerHTML = '';
       data.events.forEach(e => {
         const li = document.createElement('li');
-        li.innerHTML = `${e.name} (seats: ${e.maxSeats}) <br>`;
+        li.innerHTML = `${e.name} (seats: ${e.maxSeats})`;
         const img = document.createElement('img');
         img.src = `/admin/events/${e.id}/qrcode?password=` + encodeURIComponent(password);
         img.alt = 'QR code';
@@ -43,17 +68,23 @@ function createEvent() {
   const pwd = document.getElementById('pwd').value;
   fetch('/admin/events', {
     method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({name, maxSeats: seats, password: pwd})
+    headers: {
+      'Content-Type':'application/json',
+      'x-admin-password': pwd
+    },
+    body: JSON.stringify({name, maxSeats: seats})
   })
     .then(r => {
-      if(!r.ok) throw new Error('error');
+      if(!r.ok) return r.json().then(err => { throw new Error(err.error || 'Error'); });
       return r.json();
     })
     .then(() => {
+      document.getElementById('message').textContent = '';
       loadEvents(pwd);
     })
-    .catch(() => alert('Failed'));
+    .catch(err => {
+      document.getElementById('message').textContent = err.message;
+    });
 }
 </script>
 </body>
