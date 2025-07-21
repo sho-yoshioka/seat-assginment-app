@@ -15,7 +15,11 @@ This is a simple MVP implementation of a seat assignment web application. Scanni
    ```bash
    npm start
    ```
-3. Access `http://localhost:3000` in your browser. A number will be displayed.
+3. Access `http://localhost:3000?eventId=myEvent` in your browser. Replace
+   `myEvent` with your event identifier. A seat number from that event's pool will
+   be displayed and remembered on reload.
+4. Assigned numbers are stored in `assigned_numbers.json` so they persist across
+   server restarts.
 
 ## Future work
 - Manage seating layout (4-seat or 6-seat blocks) via UI.
