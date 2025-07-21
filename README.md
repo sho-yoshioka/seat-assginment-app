@@ -17,6 +17,19 @@ This is a simple MVP implementation of a seat assignment web application. Scanni
    ```
 3. Access `http://localhost:3000` in your browser. A number will be displayed.
 
+### Generating QR codes for events
+
+Generate QR codes that point to `event.html` with an event ID so each event has
+its own seat assignments:
+
+```bash
+# Replace EVENT1 with your event identifier
+node generate-qr.js EVENT1
+```
+
+This will create `qr-EVENT1.png` encoding the URL
+`http://localhost:3000/event.html?event=EVENT1`.
+
 ## Future work
 - Manage seating layout (4-seat or 6-seat blocks) via UI.
 - Bind seat numbers to a seating chart with administrator configuration.

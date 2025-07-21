@@ -8,10 +8,19 @@ const PORT = process.env.PORT || 3000;
 app.use(cookieParser());
 app.use(express.static('public'));
 
-let assignedNumbers = new Set();
+// Track assigned seat numbers per event ID
+const eventAssignments = {};
 let maxNumber = 100; // maximum seats for now
 
-function getRandomAvailableNumber() {
+function getAssignments(eventId) {
+  if (!eventAssignments[eventId]) {
+    eventAssignments[eventId] = new Set();
+  }
+  return eventAssignments[eventId];
+}
+
+function getRandomAvailableNumber(eventId) {
+  const assignedNumbers = getAssignments(eventId);
   if (assignedNumbers.size >= maxNumber) {
     return null; // all seats taken
   }
@@ -24,14 +33,16 @@ function getRandomAvailableNumber() {
 }
 
 app.get('/api/assign', (req, res) => {
-  if (req.cookies && req.cookies.seatNumber) {
-    return res.json({ seatNumber: Number(req.cookies.seatNumber) });
+  const eventId = req.query.event || 'default';
+  const cookieName = `seatNumber_${eventId}`;
+  if (req.cookies && req.cookies[cookieName]) {
+    return res.json({ seatNumber: Number(req.cookies[cookieName]) });
   }
-  const num = getRandomAvailableNumber();
+  const num = getRandomAvailableNumber(eventId);
   if (num === null) {
     return res.status(409).json({ error: 'No seats available' });
   }
-  res.cookie('seatNumber', num, { httpOnly: true });
+  res.cookie(cookieName, num, { httpOnly: true });
   res.json({ seatNumber: num });
 });
 
