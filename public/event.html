@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>イベントページ</title>
+    <style>
+      body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+      #number { font-size: 48px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1 id="title">あなたの番号</h1>
+    <div id="number">読み込み中...</div>
+    <script>
+      const parts = window.location.pathname.split('/');
+      const eventId = parts[parts.length - 1];
+      document.getElementById('title').textContent = `イベント ${eventId} の番号`;
+      fetch('/api/assign').then(res => res.json()).then(data => {
+        document.getElementById('number').textContent = data.seatNumber;
+      }).catch(err => {
+        document.getElementById('number').textContent = '取得できませんでした';
+      });
+    </script>
+</body>
+</html>

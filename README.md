@@ -17,6 +17,11 @@ This is a simple MVP implementation of a seat assignment web application. Scanni
    ```
 3. Access `http://localhost:3000` in your browser. A number will be displayed.
 
+## QR codes
+
+Visit `/admin` to generate a QR code for an event. The QR code points to
+`/event/<eventId>` and can be downloaded or shared.
+
 ## Future work
 - Manage seating layout (4-seat or 6-seat blocks) via UI.
 - Bind seat numbers to a seating chart with administrator configuration.

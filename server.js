@@ -1,6 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const QRCode = require('qrcode');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,6 +34,25 @@ app.get('/api/assign', (req, res) => {
   }
   res.cookie('seatNumber', num, { httpOnly: true });
   res.json({ seatNumber: num });
+});
+
+app.get('/api/event/:id/qrcode', async (req, res) => {
+  const url = `${req.protocol}://${req.get('host')}/event/${encodeURIComponent(req.params.id)}`;
+  try {
+    const buffer = await QRCode.toBuffer(url);
+    res.type('png');
+    res.send(buffer);
+  } catch (err) {
+    res.status(500).send('QR code generation failed');
+  }
+});
+
+app.get('/event/:id', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'event.html'));
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 app.get('*', (req, res) => {

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin QR Codes</title>
+    <style>
+      body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+      img { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>QR Code Generator</h1>
+    <label>Event ID: <input id="eventId" type="text" value="1"></label>
+    <button id="generate">Generate</button>
+    <div id="qrContainer"></div>
+    <script>
+      document.getElementById('generate').addEventListener('click', function () {
+        const id = document.getElementById('eventId').value;
+        const container = document.getElementById('qrContainer');
+        container.innerHTML = '';
+        const link = document.createElement('a');
+        link.href = '/api/event/' + encodeURIComponent(id) + '/qrcode';
+        link.download = 'event-' + id + '-qrcode.png';
+        const img = document.createElement('img');
+        img.src = link.href;
+        img.alt = 'QR code for event ' + id;
+        link.appendChild(img);
+        container.appendChild(link);
+      });
+    </script>
+</body>
+</html>
