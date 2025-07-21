@@ -16,7 +16,7 @@
       const parts = window.location.pathname.split('/');
       const eventId = parts[parts.length - 1];
       document.getElementById('title').textContent = `イベント ${eventId} の番号`;
-      fetch('/api/assign').then(res => res.json()).then(data => {
+      fetch(`/api/event/${encodeURIComponent(eventId)}/assign`).then(res => res.json()).then(data => {
         document.getElementById('number').textContent = data.seatNumber;
       }).catch(err => {
         document.getElementById('number').textContent = '取得できませんでした';
