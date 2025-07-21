@@ -2,6 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const fs = require('fs');
+const { promises: fsp } = fs;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,32 +12,38 @@ app.use(express.static('public'));
 
 const DATA_FILE = path.join(__dirname, 'assigned_numbers.json');
 let assignedNumbersByEvent = {};
-const maxNumber = 100; // maximum seats for now
+const maxNumber = Number(process.env.MAX_SEATS) || 100; // maximum seats
 
-loadData();
+loadData().catch(() => {
+  assignedNumbersByEvent = {};
+});
 
-function loadData() {
+async function loadData() {
+  const raw = await fsp.readFile(DATA_FILE, 'utf8').catch(() => null);
+  if (!raw) {
+    assignedNumbersByEvent = {};
+    return;
+  }
   try {
-    const raw = fs.readFileSync(DATA_FILE, 'utf8');
     const parsed = JSON.parse(raw);
     assignedNumbersByEvent = {};
     for (const [eventId, numbers] of Object.entries(parsed)) {
       assignedNumbersByEvent[eventId] = new Set(numbers);
     }
-  } catch (err) {
+  } catch {
     assignedNumbersByEvent = {};
   }
 }
 
-function saveData() {
+async function saveData() {
   const data = {};
   for (const [eventId, set] of Object.entries(assignedNumbersByEvent)) {
     data[eventId] = Array.from(set);
   }
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data));
+  await fsp.writeFile(DATA_FILE, JSON.stringify(data));
 }
 
-function getRandomAvailableNumber(eventId) {
+async function getRandomAvailableNumber(eventId) {
   if (!assignedNumbersByEvent[eventId]) {
     assignedNumbersByEvent[eventId] = new Set();
   }
@@ -49,11 +56,11 @@ function getRandomAvailableNumber(eventId) {
     num = Math.floor(Math.random() * maxNumber) + 1;
   } while (assignedNumbers.has(num));
   assignedNumbers.add(num);
-  saveData();
+  await saveData();
   return num;
 }
 
-app.get('/api/assign', (req, res) => {
+app.get('/api/assign', async (req, res) => {
   const eventId = req.query.eventId;
   if (!eventId) {
     return res.status(400).json({ error: 'eventId is required' });
@@ -64,7 +71,7 @@ app.get('/api/assign', (req, res) => {
     return res.json({ seatNumber: Number(req.cookies[cookieKey]) });
   }
 
-  const num = getRandomAvailableNumber(eventId);
+  const num = await getRandomAvailableNumber(eventId);
   if (num === null) {
     return res.status(409).json({ error: 'No seats available' });
   }
